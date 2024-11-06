@@ -1,3 +1,8 @@
+necessary dependencies:
+For Ubuntu/Debian: sudo apt-get install libsdl2-dev
+For Fedora: sudo dnf install SDL2-devel
+
+
 In order to run this file use following command:
 
 ### for bfs_maze_solver ###
