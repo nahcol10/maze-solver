@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include "stack.h"
 #include "point.h"
 
 #define MAX 100
@@ -10,37 +8,41 @@ int visited[MAX][MAX] = {0};
 int rows, cols;
 int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
+void printPath(Point path[], int length) {
+    for (int i = 0; i < length; i++) {
+        printf("(%d, %d) ", path[i].x, path[i].y);
+    }
+    printf("\n");
+}
+
 int isValid(int x, int y) {
     return (x >= 0 && x < rows && y >= 0 && y < cols && maze[x][y] == 0 && !visited[x][y]);
 }
 
-int dfs(int startX, int startY, int endX, int endY) {
-    Stack s;
-    initStack(&s);
-    push(&s, startX, startY);
-    visited[startX][startY] = 1;
+void dfs_maze_solver(int x, int y, int endX, int endY, Point path[], int pathIndex) {
+    // Mark the current cell as visited and add it to the path
+    visited[x][y] = 1;
+    path[pathIndex].x = x;
+    path[pathIndex].y = y;
+    pathIndex++;
 
-    while (!isEmpty(&s)) {
-        Point p = pop(&s);
-        int x = p.x;
-        int y = p.y;
-
-        if (x == endX && y == endY) {
-            return 1; // Path found
-        }
-
+    // Check if we have reached the destination
+    if (x == endX && y == endY) {
+        printPath(path, pathIndex); // Print the current complete path
+    } else {
+        // Explore all 4 directions
         for (int i = 0; i < 4; i++) {
             int newX = x + directions[i][0];
             int newY = y + directions[i][1];
 
             if (isValid(newX, newY)) {
-                visited[newX][newY] = 1;
-                push(&s, newX, newY);
+                dfs_maze_solver(newX, newY, endX, endY, path, pathIndex);
             }
         }
     }
 
-    return 0; // No path found
+    // Backtrack: unmark the current cell as visited
+    visited[x][y] = 0;
 }
 
 int main() {
@@ -58,11 +60,9 @@ int main() {
     printf("Enter the end point (x y): ");
     scanf("%d %d", &endX, &endY);
 
-    if (dfs(startX, startY, endX, endY)) {
-        printf("Path found using DFS.\n");
-    } else {
-        printf("No path found using DFS.\n");
-    }
+    Point path[MAX * MAX]; // Maximum possible path length
+    printf("All possible paths from source to destination:\n");
+    dfs_maze_solver(startX, startY, endX, endY, path, 0);
 
     return 0;
 }
